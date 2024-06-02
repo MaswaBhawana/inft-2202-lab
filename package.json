@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "This repository will be used to make Lab submission for Web Development - CSS",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,6 +13,10 @@
   },
   "author": "Bhawana Maswa",
   "license": "ISC",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.2",
+    "bootstrap": "^5.3.3"
+  },
   "bugs": {
     "url": "https://github.com/[your-github-username]/inft-2202-ice.git\u001b[D\u001b[D\u001b[Dlab\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[MaswaBhawana\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C/issues"
   },

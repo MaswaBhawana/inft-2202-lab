@@ -12,13 +12,17 @@
     <title>Contact</title>
 
     <style>
-        html{
+    html{
         height: 100%;
     }
     body {
         display: flex;
         flex-direction: column;
         min-height: 100vh;
+        background-image: url(''); 
+        background-size: cover; 
+        background-position: center; 
+        background-repeat: no-repeat;
     }
     header {
         position: sticky;
@@ -37,12 +41,16 @@
         width: 100%;
         background-color: #f8f9fa; 
     }
+    .nav-container {
+        display: flex;
+        justify-content: center;
+    }
     </style>   
   </head>
 
   <body>
-    <div class="container">
-      <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+      <div class="container">
       
         <ul class="nav nav-pills">
           <li class="nav-item"><a href="index.html" class="nav-link" aria-current="page">Home</a></li>
@@ -51,10 +59,33 @@
           <li class="nav-item"><a href="contact.html" class="nav-link active">Contact</a></li>
           <li class="nav-item"><a href="about.html" class="nav-link">About</a></li>
         </ul>
+      </div>
       </header>
-    </div>
 
     <main>
+      <div class="container">
+        <h1 class="mt-5" id="form-heading">Contact</h1>
+        <form id="contact-form" method="post" action="">
+            <label for="name" class="form-label">Your Name:</label><br>
+            <input type="text" class="form-control" id="name" name="name"><br><br>
+            <p id="name-error" class="text-danger d-none"></p>
+  
+            <label for="phone" class="form-label">Your Phone Number:</label><br>
+            <input type="number" class="form-control" id="phone" name="phone"><br><br>
+            <p id="phone-error" class="text-danger d-none"></p>
+  
+            <label for="email" class="form-label">E-mail Address:</label><br>
+            <input type="text" class="form-control" id="email" name="email"><br><br>
+            <p id="email-error" class="text-danger d-none"></p>
+  
+            <label for="message" class="form-label">Message:</label><br>
+            <input type="text" class="form-control" id="message" name="Message"><br><br>
+            <p id="message-error" class="text-danger d-none"></p>
+  
+            <button type="submit" class="btn btn-primary">Send Message</button>
+            
+        </form>
+      </div>
         
     </main>
 
@@ -71,5 +102,9 @@
       </script>
     </footer>
     
+    <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="app/contact.mock.service.js" type="module"></script>
+    <script src="app/contact.js" type="module"></script>
     </body>
 </html>

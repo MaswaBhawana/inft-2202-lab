@@ -37,12 +37,23 @@
         width: 100%;
         background-color: #f8f9fa; 
     }
+    .logo {
+        max-width: 300px;
+        height: auto;
+        margin-bottom: 20px; 
+    }
+    .product-image {
+      width: 100%;
+      height: auto;
+      max-height: 200px;
+      object-fit: cover; 
+    }
     </style>   
   </head>
 
   <body>
-    <div class="container">
-      <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+        <div class="container">
       
         <ul class="nav nav-pills">
           <li class="nav-item"><a href="index.html" class="nav-link active" aria-current="page">Home</a></li>
@@ -56,22 +67,22 @@
 
     <main>
         <div class="container">
-        <div class="row">
-            <div class="col-lg-2">
-              <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="var(--bs-secondary-color)"/></svg>
-              <h2 class="fw-normal">Heading</h2>
-              <p>And lastly this, the third column of representative placeholder content.</p>
-              <p><a class="btn btn-secondary" href="#">View details &raquo;</a></p>
-            </div>
-        
-
+            <div class="row">
+              <div class="col-lg-1">
+            <h1 class="fw-light"><a class="navbar-brand" href="index.html">
+              <img src="Img/logo.png" alt="Logo" class="logo">
+          </a></h1>
+          
+          </div>
         <div class="col-lg-8 col-md-8 mx-auto">
-            <h1 class="fw-light">Album example</h1>
-            <p class="lead text-body-secondary">Something short and leading about the collection below—its contents, the creator, etc. Make it short and sweet, but not too short so folks don’t simply skip over it entirely.</p>
-            <p>
-              <a href="#" class="btn btn-primary my-2">Main call to action</a>
-              <a href="#" class="btn btn-secondary my-2">Secondary action</a>
-            </p>
+          <img class="product-image" src="Img/background.jpg" alt="Product 1">
+          <p class="lead"><strong>Fashion Destination</strong></p>
+          <hr class="my-4">
+          <p>Discover the latest trends in clothing and accessories at Bshop. We offer a curated selection of 100 % organic, high-quality fashion items designed to elevate your style. Whether you're looking for everyday essentials or statement pieces, Bshop has something for every occasion.</p>
+          <a class="btn btn-primary btn-lg" href="shop.html" role="button">Explore Now</a>
+        </div>
+      </div>
+          </div>
         </div>
         </div>
         </div>
@@ -90,5 +101,8 @@
       </script>
     </footer>
     
+    <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="app/index.js" type="module"></script>
     </body>
 </html>

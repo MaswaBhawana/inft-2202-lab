@@ -48,7 +48,7 @@ function drawProductCards(products, currentPage) {
         card.classList.add('card', 'col-md-4', 'col-sm-6', 'mb-4');
 
         card.innerHTML = `
-            <img src="${product.imageUrl}" class="card-img-top" alt="${product.name}">
+            <img src="https://cdn.australia247.info/assets/uploads/5627c3e0ca74272f061b5c71107cc361_-new-south-wales-newcastle-city-council-new-lambton-miskonduct-klothing-02-4048-0455html.jpg" class="card-img-top" alt="${product.name}">
             <div class="card-body">
                 <h5 class="card-title">${product.name}</h5>
                 <p class="card-text">Price: ${product.price}</p>

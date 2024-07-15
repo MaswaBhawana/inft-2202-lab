@@ -1,5 +1,4 @@
-// add.js
-import { addProduct } from './product.service.js';
+import productService from './product.service.js';
 import { Product } from './product.js';
 
 export function validateProductForm(form) {
@@ -82,15 +81,15 @@ async function submitProductForm(event) {
         // Create new Product object
         const newProduct = new Product(
             productForm.name.value.trim(),
-            parseFloat(productForm.price.value.trim()), // Convert to float
-            parseInt(productForm.stock.value.trim()),  // Convert to int
+            productForm.price.value.trim(), // Keep it as string for now
+            productForm.stock.value.trim(),  // Keep it as string for now
             productForm.description.value.trim()
         );
 
         try {
             console.log('Adding product:', newProduct); // Log the product being added
             // Store the product using ProductService
-            await addProduct(newProduct);
+            await productService.addProduct(newProduct);
             console.log('Product added successfully'); // Log success
             // Redirect to list.html if product is successfully stored
             window.location.href = 'list.html';

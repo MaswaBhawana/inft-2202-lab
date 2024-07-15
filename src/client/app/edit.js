@@ -1,4 +1,4 @@
-import { findProduct, updateProduct } from './product.service.js';
+import productService from './product.service.js';
 import { validateProductForm } from './add.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -18,7 +18,7 @@ async function setupEditForm(productId) {
     heading.textContent = "Edit Product";
 
     try {
-        const product = await findProduct(productId);
+        const product = await productService.findProduct(productId);
         if (!product) {
             console.error(`No product found with id: ${productId}`);
             return;
@@ -49,7 +49,7 @@ async function submitEditForm(event, originalProduct) {
     }
 
     try {
-        await updateProduct(originalProduct.productId, updatedProduct);
+        await productService.updateProduct(originalProduct.productId, updatedProduct);
         window.location.href = "list.html";
     } catch (error) {
         const errorElement = document.getElementById('name-error');

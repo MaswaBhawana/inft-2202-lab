@@ -1,4 +1,4 @@
-import { listProducts, deleteProduct } from './product.service.js'; // Ensure the path is correct
+import productService from './product.service.js'; // Ensure the path is correct
 
 const currentUser = "MaswaBhawana";
 
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchProducts() {
         showSpinner();
         try {
-            const productsData = await listProducts(currentPage, perPage);
+            const productsData = await productService.listProducts(currentPage, perPage);
             console.log('API Response:', productsData); // Log the response to check its structure
 
             const products = productsData.records || productsData.data || productsData; // Adjust this based on the actual API response structure
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             showSpinner();
             try {
-                await deleteProduct(deleteProductId);
+                await productService.deleteProduct(deleteProductId);
                 showMessage('Product deleted successfully.', 'success');
                 const deleteConfirmationModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
                 deleteConfirmationModal.hide();

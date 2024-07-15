@@ -93,29 +93,35 @@ export async function addProduct(product) {
 }
 
 // Update Product by ID
+// Update Product by ID
 export async function updateProduct(productId, productData) {
-    const url = new URL(`${API_BASE_URL}/${productId}`);
-    const options = {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'apikey': API_KEY,
-        },
-        body: JSON.stringify(productData)
-    };
+  const url = new URL(`${API_BASE_URL}/${productId}`);
+  const options = {
+      method: 'PUT',
+      headers: {
+          'Content-Type': 'application/json',
+          'apikey': API_KEY,
+      },
+      body: JSON.stringify(productData)
+  };
 
-    try {
-        const data = await fetchData(url, options);
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(data);
-            }, 1000);
-        });
-    } catch (err) {
-        console.error('Error updating product:', err);
-        throw new Error('Failed to update product. Please try again.');
-    }
+  try {
+      const res = await fetch(url, options);
+      if (!res.ok) {
+          const errorMessage = await res.text();
+          throw new Error(errorMessage);
+      }
+      return new Promise((resolve) => {
+          setTimeout(() => {
+              resolve(res.json());
+          }, 1000);
+      });
+  } catch (err) {
+      console.error('Error updating product:', err);
+      throw new Error('Failed to update product. Please try again.');
+  }
 }
+
 
 // Delete Product by ID
 export async function deleteProduct(productId) {

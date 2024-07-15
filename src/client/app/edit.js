@@ -49,7 +49,7 @@ async function submitEditForm(event, originalProduct) {
     }
 
     try {
-        await updateProduct(originalProduct._id, updatedProduct);
+        await updateProduct(originalProduct.productId, updatedProduct);
         window.location.href = "list.html";
     } catch (error) {
         const errorElement = document.getElementById('name-error');

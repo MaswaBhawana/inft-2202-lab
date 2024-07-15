@@ -8,11 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const paginationContainer = document.getElementById('pagination');
     const perPageSelect = document.getElementById('perPageSelect');
     const spinner = document.getElementById("spinner");
-    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
-    let deleteProductId = null;
 
     let perPage = parseInt(perPageSelect.value);
     let currentPage = getCurrentPage();
+    let deleteProductId = null;
 
     async function fetchProducts() {
         showSpinner();
@@ -63,20 +62,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const listedAt = new Date(product.createdAt).toLocaleString();
 
             card.innerHTML = `
-                <img src="https://cdn.australia247.info/assets/uploads/5627c3e0ca74272f061b5c71107cc361_-new-south-wales-newcastle-city-council-new-lambton-miskonduct-klothing-02-4048-0455html.jpg" class="card-img-top" alt="${product.name}">
-                <div class="card-body">
-                    <h5 class="card-title">${product.name}</h5>
-                    <p class="card-text">Price: ${product.price}</p>
-                    <p class="card-text">Stock: ${product.stock}</p>
-                    <p class="card-text">${product.description}</p>
-                    <p class="card-text"><strong>Listed By:</strong> ${ownerName}</p>
-                    <p class="card-text"><strong>Listed At:</strong> ${listedAt}</p>
-                    ${product.owner.githubId === currentUser ? `
-                    <button class="btn btn-danger delete-button" data-product-id="${product.productId}" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"><i class="fa fa-trash"></i></button>
-                    <a href="add.html?id=${product.productId}" class="btn btn-primary"><i class="fa fa-edit"></i></a>
-                    ` : ''}
-                </div>
-            `;
+            <img src="https://cdn.australia247.info/assets/uploads/5627c3e0ca74272f061b5c71107cc361_-new-south-wales-newcastle-city-council-new-lambton-miskonduct-klothing-02-4048-0455html.jpg" class="card-img-top" alt="${product.name}">
+            <div class="card-body">
+                <h5 class="card-title">${product.name}</h5>
+                <p class="card-text">Price: ${product.price}</p>
+                <p class="card-text">Stock: ${product.stock}</p>
+                <p class="card-text">${product.description}</p>
+                <p class="card-text"><strong>Listed By:</strong> ${ownerName}</p>
+                <p class="card-text"><strong>Listed At:</strong> ${listedAt}</p>
+                ${product.owner.githubId === currentUser ? `
+                <button class="btn btn-danger delete-button" data-product-id="${product.productId}" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"><i class="fa fa-trash"></i></button>
+                <a href="add.html?id=${product.productId}" class="btn btn-primary"><i class="fa fa-edit"></i></a>
+                ` : ''}
+            </div>
+        `;
 
             productContainer.appendChild(card);
         });
@@ -90,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
         confirmDeleteButton.addEventListener('click', async () => {
             if (!deleteProductId) {
                 console.error('No product ID set for deletion.');
@@ -98,6 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await deleteProduct(deleteProductId);
                 showMessage('Product deleted successfully.', 'success');
+                const deleteConfirmationModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
+                deleteConfirmationModal.hide();
                 await fetchProducts(); // Fetch and redraw products after deletion
             } catch (error) {
                 console.error('Error deleting product:', error);

@@ -1,41 +1,43 @@
-// edit.js
-
-import { productService } from './product.mock.service.js';
+import { findProduct, updateProduct } from './product.service.js';
 import { validateProductForm } from './add.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const params = new URL(document.location).searchParams;
-    const name = params.get("name");
+    const productId = params.get("id");
 
-    if (!name) {
-        console.error("No 'name' parameter found in the URL.");
+    if (!productId) {
+        console.error("No 'id' parameter found in the URL.");
         return;
     }
 
-    setupEditForm(name);
+    await setupEditForm(productId);
 });
 
-function setupEditForm(name) {
+async function setupEditForm(productId) {
     const heading = document.getElementById('form-heading');
     heading.textContent = "Edit Product";
 
-    const product = productService.findProduct(name);
-    if (!product) {
-        console.error(`No product found with name: ${name}`);
-        return;
+    try {
+        const product = await findProduct(productId);
+        if (!product) {
+            console.error(`No product found with id: ${productId}`);
+            return;
+        }
+
+        const productForm = document.getElementById('add-form');
+        populateForm(productForm, product);
+        productForm.name.disabled = true;
+
+        const button = document.getElementById('submit');
+        button.textContent = "Update Product";
+
+        productForm.addEventListener('submit', (event) => submitEditForm(event, product));
+    } catch (error) {
+        console.error(`Error finding product: ${productId}`, error);
     }
-
-    const productForm = document.getElementById('add-form');
-    populateForm(productForm, product); // Assuming populateForm function exists and populates the form fields
-    productForm.name.disabled = true;
-
-    const button = document.getElementById('submit');
-    button.textContent = "Update Product";
-
-    productForm.addEventListener('submit', (event) => submitEditForm(event, product));
 }
 
-function submitEditForm(event, originalProduct) {
+async function submitEditForm(event, originalProduct) {
     event.preventDefault();
 
     const productForm = event.target;
@@ -46,14 +48,15 @@ function submitEditForm(event, originalProduct) {
         return; // Stop further processing if form validation fails
     }
 
-    if (productService.updateProduct(updatedProduct)) {
+    try {
+        await updateProduct(originalProduct._id, updatedProduct);
         window.location.href = "list.html";
-    } else {
+    } catch (error) {
         const errorElement = document.getElementById('name-error');
         if (errorElement) {
             errorElement.textContent = "Update failed. Try again.";
         } else {
-            console.error("Failed to update product.");
+            console.error("Failed to update product.", error);
         }
     }
 }

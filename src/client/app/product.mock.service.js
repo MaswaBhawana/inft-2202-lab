@@ -23,6 +23,7 @@ ProductService.prototype.findProduct = function(name) {
 ProductService.prototype.addProduct = function(product) {
     const products = JSON.parse(localStorage.getItem('products'));
     if (products.find(p => p.name === product.name)) {
+        console.error('Error adding product. The product already exists.')
         return false;
     }
     products.push(product);

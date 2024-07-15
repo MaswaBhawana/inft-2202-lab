@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
   
-  <!-- Title of the document -->
   <title>List</title>
 
   <style>
@@ -40,6 +39,9 @@
     #deleteConfirmationModal {
       display: none; /* Initially hide the modal */
     }
+    .spinner-border {
+      display: none; /* Initially hide the spinner */
+    }
   </style>   
 </head>
 
@@ -54,16 +56,32 @@
         <li class="nav-item"><a href="about.html" class="nav-link">About</a></li>
       </ul>
     </div>
-    
   </header>
 
   <main>
     <div class="container">
       <h1 class="mt-5">List of Products</h1>
-      <!-- Product Cards Section -->
-      <div id="products-container" class="cards row-cols-1 row-cols-md-3 g-4">
-        
+
+      <!-- Dropdown for selecting number of products per page -->
+      <div class="mb-3">
+        <label for="perPageSelect" class="form-label">Products per page:</label>
+        <select id="perPageSelect" class="form-select" aria-label="Products per page">
+          <option value="2">2</option>
+          <option value="5" selected>5</option>
+          <option value="10">10</option>
+          <option value="20">20</select>
       </div>
+
+      <!-- Spinner for loading indication -->
+      <div class="text-center my-3">
+        <div id="spinner" class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Product Cards Section -->
+      <div id="products-container" class="cards row row-cols-1 row-cols-md-3 g-4"></div>
+
       <!-- Modal window to confirm deletion -->
       <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -90,9 +108,7 @@
 
       <!-- Pagination Section -->
       <nav id="pagination" aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-          
-        </ul>
+        <ul class="pagination justify-content-center"></ul>
       </nav> 
     </div>
   </main>

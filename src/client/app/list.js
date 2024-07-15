@@ -1,154 +1,190 @@
-// Import the product service instance and Product constructor
-import { productService } from './product.mock.service.js';
-import { Product } from './product.js';
+import { listProducts, deleteProduct } from './product.service.js'; // Ensure the path is correct
 
-// Get a reference to the message box, pagination container, and product container
-const messageBox = document.getElementById('messageAlert');
-const paginationContainer = document.getElementById('pagination');
-const productContainer = document.getElementById('products-container');
+const currentUser = "MaswaBhawana";
 
-const perPage = 5; // Number of entries per page
+document.addEventListener('DOMContentLoaded', () => {
+    const messageBox = document.getElementById('messageAlert');
+    const productContainer = document.getElementById('products-container');
+    const paginationContainer = document.getElementById('pagination');
+    const perPageSelect = document.getElementById('perPageSelect');
+    const spinner = document.getElementById("spinner");
+    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+    let deleteProductId = null;
 
-// Fetch the list of products and draw the cards with pagination
-fetchProducts();
+    let perPage = parseInt(perPageSelect.value);
+    let currentPage = getCurrentPage();
 
-function fetchProducts() {
-    const products = productService.listProducts();
-    const currentPage = getCurrentPage();
-    const paginatedProducts = getPaginatedProducts(products, currentPage, perPage);
-    drawProductCards(paginatedProducts, currentPage);
-}
+    async function fetchProducts() {
+        showSpinner();
+        try {
+            const productsData = await listProducts(currentPage, perPage);
+            console.log('API Response:', productsData); // Log the response to check its structure
 
-function getPaginatedProducts(products, currentPage, perPage) {
-    const startIndex = (currentPage - 1) * perPage;
-    return products.slice(startIndex, startIndex + perPage);
-}
+            const products = productsData.records || productsData.data || productsData; // Adjust this based on the actual API response structure
+            if (!products) {
+                throw new Error('Products data is not defined');
+            }
 
-function drawProductCards(products, currentPage) {
-    // Calculate pagination
-    const totalPages = Math.ceil(productService.listProducts().length / perPage);
-
-    // Show or hide the message box and cards based on the products list
-    if (products.length === 0) {
-        messageBox.classList.remove('d-none');
-        productContainer.classList.add('d-none');
-        paginationContainer.innerHTML = ''; // Clear pagination if no products
-        return;
-    } else {
-        messageBox.classList.add('d-none');
-        productContainer.classList.remove('d-none');
-    }
-
-    // Empty the product container before redrawing
-    productContainer.innerHTML = '';
-
-    // Create and add cards for each product
-    products.forEach(product => {
-        const card = document.createElement('div');
-        card.classList.add('card', 'col-md-4', 'col-sm-6', 'mb-4');
-
-        card.innerHTML = `
-            <img src="https://cdn.australia247.info/assets/uploads/5627c3e0ca74272f061b5c71107cc361_-new-south-wales-newcastle-city-council-new-lambton-miskonduct-klothing-02-4048-0455html.jpg" class="card-img-top" alt="${product.name}">
-            <div class="card-body">
-                <h5 class="card-title">${product.name}</h5>
-                <p class="card-text">Price: ${product.price}</p>
-                <p class="card-text">Stock: ${product.stock}</p>
-                <p class="card-text">${product.description}</p>
-                <button class="btn btn-primary">Add to cart</button>
-                <button class="btn btn-danger delete-button" data-product-id="${product.name}" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"><i class="fa fa-trash"></i></button>
-                <a href="add.html?name=${product.name}" class="btn btn-primary"><i class="fa fa-edit"></i></a>
-            </div>
-        `;
-
-        productContainer.appendChild(card);
-    });
-
-    // Initialize delete button event listeners
-    document.querySelectorAll('.delete-button').forEach(button => {
-        button.addEventListener('click', event => {
-            const productName = event.currentTarget.getAttribute('data-product-id');
-            const confirmDeleteButton = document.getElementById('confirmDeleteButton');
-
-            // Set up confirmation button click handler
-            confirmDeleteButton.onclick = () => {
-                // Delete the product using productService
-                if (productService.deleteProduct(productName)) {
-                    console.log(`Product '${productName}' deleted successfully.`);
-                    // Hide modal and update product list
-                    const deleteConfirmationModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
-                    deleteConfirmationModal.hide();
-                    fetchProducts(); // Fetch and redraw products after deletion
-                } else {
-                    console.error(`Failed to delete product '${productName}'.`);
-                }
-            };
-        });
-    });
-
-    // Draw pagination links
-    drawPagination(paginationContainer, currentPage, totalPages);
-}
-
-function drawPagination(paginationElement, currentPage, totalPages) {
-    paginationElement.innerHTML = ''; // Clear existing pagination
-
-    if (totalPages <= 1) {
-        return; // Hide pagination if there's only one page or no pages needed
-    }
-
-    const paginationList = document.createElement('ul');
-    paginationList.classList.add('pagination');
-
-    // Previous button
-    const prevButton = createPaginationButton('Previous', currentPage > 1 ? currentPage - 1 : currentPage, 'page-link', currentPage > 1);
-    paginationList.appendChild(prevButton);
-
-    // Page buttons
-    for (let i = 1; i <= totalPages; i++) {
-        const pageButton = createPaginationButton(i, i, 'page-link', true, currentPage === i);
-        paginationList.appendChild(pageButton);
-    }
-
-    // Next button
-    const nextButton = createPaginationButton('Next', currentPage < totalPages ? currentPage + 1 : currentPage, 'page-link', currentPage < totalPages);
-    paginationList.appendChild(nextButton);
-
-    paginationElement.appendChild(paginationList);
-}
-
-function createPaginationButton(text, page, classes, isEnabled, isActive = false) {
-    const paginationItem = document.createElement('li');
-    paginationItem.classList.add('page-item');
-    if (isActive) {
-        paginationItem.classList.add('active');
-    }
-    if (!isEnabled) {
-        paginationItem.classList.add('disabled');
-    }
-
-    const link = document.createElement('a');
-    link.classList.add(classes);
-    link.textContent = text;
-    link.href = `?page=${page}`; // Update the URL with the page parameter
-    link.addEventListener('click', (event) => {
-        event.preventDefault();
-        if (isEnabled && !isActive) {
-            fetchProducts();
-            updateURL(page);
+            drawProductCards(products);
+            drawPagination(productsData.pagination.count, productsData.pagination.page, productsData.pagination.perPage);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            showMessage('Error fetching products. Please try again later.', 'danger');
+        } finally {
+            hideSpinner();
         }
+    }
+
+    perPageSelect.addEventListener('change', async () => {
+        perPage = parseInt(perPageSelect.value);
+        currentPage = 1; // Reset to the first page when changing perPage
+        updateURL();
+        await fetchProducts();
     });
 
-    paginationItem.appendChild(link);
-    return paginationItem;
-}
+    function drawProductCards(products) {
+        if (products.length === 0) {
+            showMessage('No products found.', 'info');
+            productContainer.classList.add('d-none');
+            paginationContainer.innerHTML = '';
+            return;
+        } else {
+            messageBox.classList.add('d-none');
+            productContainer.classList.remove('d-none');
+        }
 
-function getCurrentPage() {
-    const params = new URLSearchParams(window.location.search);
-    return parseInt(params.get('page')) || 1;
-}
+        productContainer.innerHTML = '';
 
-function updateURL(page) {
-    const url = new URL(window.location);
-    url.searchParams.set('page', page);
-    window.history.pushState({}, '', url);
-}
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.classList.add('card', 'col-md-4', 'col-sm-6', 'mb-4');
+
+            const ownerName = product.owner.name || 'Unknown'; // Adjust according to actual API response
+            const listedAt = new Date(product.createdAt).toLocaleString();
+
+            card.innerHTML = `
+                <img src="https://cdn.australia247.info/assets/uploads/5627c3e0ca74272f061b5c71107cc361_-new-south-wales-newcastle-city-council-new-lambton-miskonduct-klothing-02-4048-0455html.jpg" class="card-img-top" alt="${product.name}">
+                <div class="card-body">
+                    <h5 class="card-title">${product.name}</h5>
+                    <p class="card-text">Price: ${product.price}</p>
+                    <p class="card-text">Stock: ${product.stock}</p>
+                    <p class="card-text">${product.description}</p>
+                    <p class="card-text"><strong>Listed By:</strong> ${ownerName}</p>
+                    <p class="card-text"><strong>Listed At:</strong> ${listedAt}</p>
+                    ${product.owner.githubId === currentUser ? `
+                    <button class="btn btn-danger delete-button" data-product-id="${product.productId}" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"><i class="fa fa-trash"></i></button>
+                    <a href="add.html?id=${product.productId}" class="btn btn-primary"><i class="fa fa-edit"></i></a>
+                    ` : ''}
+                </div>
+            `;
+
+            productContainer.appendChild(card);
+        });
+
+        // Initialize delete button event listeners
+        document.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', event => {
+                event.preventDefault();
+                deleteProductId = event.currentTarget.getAttribute('data-product-id');
+                console.log('Delete product ID:', deleteProductId); // Log the product ID for deletion
+            });
+        });
+
+        confirmDeleteButton.addEventListener('click', async () => {
+            if (!deleteProductId) {
+                console.error('No product ID set for deletion.');
+                return;
+            }
+            try {
+                await deleteProduct(deleteProductId);
+                showMessage('Product deleted successfully.', 'success');
+                await fetchProducts(); // Fetch and redraw products after deletion
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showMessage('Error deleting product. Please try again later.', 'danger');
+            }
+        });
+    }
+
+    function drawPagination(totalItems, currentPage, perPage) {
+        const totalPages = Math.ceil(totalItems / perPage);
+        paginationContainer.innerHTML = '';
+
+        if (totalPages <= 1) {
+            return;
+        }
+
+        const paginationList = document.createElement('ul');
+        paginationList.classList.add('pagination');
+
+        const prevButton = createPaginationButton('Previous', currentPage > 1 ? currentPage - 1 : currentPage, 'page-link', currentPage > 1);
+        paginationList.appendChild(prevButton);
+
+        for (let i = 1; i <= totalPages; i++) {
+            const pageButton = createPaginationButton(i, i, 'page-link', true, currentPage === i);
+            paginationList.appendChild(pageButton);
+        }
+
+        const nextButton = createPaginationButton('Next', currentPage < totalPages ? currentPage + 1 : currentPage, 'page-link', currentPage < totalPages);
+        paginationList.appendChild(nextButton);
+
+        paginationContainer.appendChild(paginationList);
+    }
+
+    function createPaginationButton(text, page, classes, isEnabled, isActive = false) {
+        const paginationItem = document.createElement('li');
+        paginationItem.classList.add('page-item');
+        if (isActive) {
+            paginationItem.classList.add('active');
+        }
+        if (!isEnabled) {
+            paginationItem.classList.add('disabled');
+        }
+
+        const link = document.createElement('a');
+        link.classList.add(classes);
+        link.textContent = text;
+        link.href = `?page=${page}`;
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (isEnabled && !isActive) {
+                currentPage = page;
+                fetchProducts();
+                updateURL();
+            }
+        });
+
+        paginationItem.appendChild(link);
+        return paginationItem;
+    }
+
+    function getCurrentPage() {
+        const params = new URLSearchParams(window.location.search);
+        return parseInt(params.get('page')) || 1;
+    }
+
+    function updateURL() {
+        const url = new URL(window.location);
+        url.searchParams.set('page', currentPage);
+        url.searchParams.set('perPage', perPage);
+        window.history.pushState({}, '', url);
+    }
+
+    function showMessage(message, type) {
+        messageBox.textContent = message;
+        messageBox.className = `alert alert-${type}`;
+        messageBox.classList.remove('d-none');
+    }
+
+    function showSpinner() {
+        console.log("Showing spinner");
+        spinner.classList.remove("d-none");
+    }
+
+    function hideSpinner() {
+        console.log("Hiding spinner");
+        spinner.classList.add("d-none");
+    }
+
+    fetchProducts();
+});

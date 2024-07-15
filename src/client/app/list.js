@@ -95,8 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('No product ID set for deletion.');
                 return;
             }
-            showSpinner();
             try {
+                console.log(`Deleting product with ID: ${deleteProductId}`); // Log the product ID
                 await productService.deleteProduct(deleteProductId);
                 showMessage('Product deleted successfully.', 'success');
                 const deleteConfirmationModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
@@ -105,8 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error deleting product:', error);
                 showMessage('Error deleting product. Please try again later.', 'danger');
-            } finally {
-                hideSpinner();
             }
         });
     }
@@ -184,13 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function showSpinner() {
         console.log("Showing spinner");
         spinner.classList.remove("d-none");
-        spinner.classList.add("show");
     }
 
     function hideSpinner() {
         console.log("Hiding spinner");
         spinner.classList.add("d-none");
-        spinner.classList.remove("show");
     }
 
     fetchProducts();

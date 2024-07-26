@@ -2,10 +2,11 @@
   "name": "inft-2202-lab",
   "version": "1.0.0",
   "description": "This repository will be used to make Lab submission for Web Development - CSS",
-  "main": "index.js",
+  "main": "server/app.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/server/app.js"
   },
   "repository": {
     "type": "git",
@@ -15,10 +16,17 @@
   "license": "ISC",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.5.2",
-    "bootstrap": "^5.3.3"
+    "bootstrap": "^5.3.3",
+    "express": "^4.19.2",
+    "express-validator": "^7.1.0",
+    "mongoose": "^8.5.0",
+    "winston": "^3.13.1"
   },
   "bugs": {
     "url": "https://github.com/[your-github-username]/inft-2202-ice.git\u001b[D\u001b[D\u001b[Dlab\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[MaswaBhawana\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C/issues"
   },
-  "homepage": "https://github.com/[your-github-username]/inft-2202-ice.git\u001b[D\u001b[D\u001b[Dlab\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[MaswaBhawana\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C#readme"
+  "homepage": "https://github.com/[your-github-username]/inft-2202-ice.git\u001b[D\u001b[D\u001b[Dlab\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[MaswaBhawana\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
 }

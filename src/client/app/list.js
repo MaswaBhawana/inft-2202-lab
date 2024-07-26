@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.classList.add('card', 'col-md-4', 'col-sm-6', 'mb-4');
 
             const ownerName = product.owner.name || 'Unknown'; // Adjust according to actual API response
-            const listedAt = new Date(product.createdAt).toLocaleString();
+            const listedAt = new Date(product.createdAt).toLocaleString(); // Format the date
 
             card.innerHTML = `
                 <img src="https://cdn.australia247.info/assets/uploads/5627c3e0ca74272f061b5c71107cc361_-new-south-wales-newcastle-city-council-new-lambton-miskonduct-klothing-02-4048-0455html.jpg" class="card-img-top" alt="${product.name}">
@@ -95,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('No product ID set for deletion.');
                 return;
             }
+            showSpinner();
             try {
                 console.log(`Deleting product with ID: ${deleteProductId}`); // Log the product ID
                 await productService.deleteProduct(deleteProductId);
@@ -105,6 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error deleting product:', error);
                 showMessage('Error deleting product. Please try again later.', 'danger');
+            }finally {
+                hideSpinner();
             }
         });
     }
@@ -182,11 +185,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function showSpinner() {
         console.log("Showing spinner");
         spinner.classList.remove("d-none");
+        spinner.classList.add("show");
     }
 
     function hideSpinner() {
         console.log("Hiding spinner");
         spinner.classList.add("d-none");
+        spinner.classList.remove("show");
     }
 
     fetchProducts();

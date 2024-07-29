@@ -81,8 +81,8 @@ async function submitProductForm(event) {
         // Create new Product object
         const newProduct = new Product(
             productForm.name.value.trim(),
-            productForm.price.value.trim(), 
-            productForm.stock.value.trim(),  
+            parseFloat(productForm.price.value.trim()), 
+            parseInt(productForm.stock.value.trim()),  
             productForm.description.value.trim()
         );
 

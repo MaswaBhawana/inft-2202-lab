@@ -1,13 +1,9 @@
-const API_BASE_URL = 'https://inft2202.paclan.net/api/products';
-const API_KEY = '6671c508f6855731eec497fa';
+const API_BASE_URL = 'http://localhost:3000/api/products';
 
-// Constructor function for ProductService
-function ProductService(host, apikey) {
+function ProductService(host) {
     this.host = host;
-    this.apikey = apikey;
 }
 
-// Helper function to fetch data
 async function fetchData(url, options) {
     const response = await fetch(url, options);
     if (!response.ok) {
@@ -17,7 +13,6 @@ async function fetchData(url, options) {
     return await response.json();
 }
 
-// List Products with pagination
 ProductService.prototype.listProducts = async function (page, perPage) {
     const url = new URL(this.host);
     url.searchParams.append('page', page);
@@ -28,7 +23,6 @@ ProductService.prototype.listProducts = async function (page, perPage) {
         mode: "cors",
         headers: {
             "Content-Type": "application/json",
-            'apikey': this.apikey,
         }
     };
 
@@ -45,7 +39,6 @@ ProductService.prototype.listProducts = async function (page, perPage) {
     }
 }
 
-// Find Product by ID
 ProductService.prototype.findProduct = async function (productId) {
     const url = new URL(`${this.host}/${productId}`);
     const options = {
@@ -53,7 +46,6 @@ ProductService.prototype.findProduct = async function (productId) {
         mode: "cors",
         headers: {
             "Content-Type": "application/json",
-            'apikey': this.apikey,
         }
     };
 
@@ -70,14 +62,12 @@ ProductService.prototype.findProduct = async function (productId) {
     }
 }
 
-// Add Product
 ProductService.prototype.addProduct = async function (product) {
     const url = this.host;
     const options = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'apikey': this.apikey
         },
         body: JSON.stringify(product)
     };
@@ -99,14 +89,12 @@ ProductService.prototype.addProduct = async function (product) {
     }
 }
 
-// Update Product by ID
 ProductService.prototype.updateProduct = async function (productId, productData) {
     const url = new URL(`${this.host}/${productId}`);
     const options = {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            'apikey': this.apikey,
         },
         body: JSON.stringify(productData)
     };
@@ -128,7 +116,6 @@ ProductService.prototype.updateProduct = async function (productId, productData)
     }
 }
 
-// Delete Product by ID
 ProductService.prototype.deleteProduct = async function (productId) {
     const url = new URL(`${this.host}/${productId}`);
     console.log('Deleting product with ID:', productId); // Log the product ID
@@ -136,7 +123,6 @@ ProductService.prototype.deleteProduct = async function (productId) {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'apikey': this.apikey,
         }
     };
 
@@ -158,6 +144,5 @@ ProductService.prototype.deleteProduct = async function (productId) {
     }
 }
 
-// Export an instance of ProductService
-const productService = new ProductService(API_BASE_URL, API_KEY);
+const productService = new ProductService(API_BASE_URL);
 export default productService;

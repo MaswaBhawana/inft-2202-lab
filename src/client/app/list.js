@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Products data is not defined');
             }
 
+            console.log('Fetched Products:', products); // Log fetched products
+
             drawProductCards(products);
             drawPagination(productsData.pagination.count, productsData.pagination.page, productsData.pagination.perPage);
         } catch (error) {
@@ -58,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.classList.add('card', 'col-md-4', 'col-sm-6', 'mb-4');
 
-            const ownerName = product.owner.name || 'Unknown'; // Adjust according to actual API response
             const listedAt = new Date(product.createdAt).toLocaleString(); // Format the date
 
             card.innerHTML = `
@@ -68,12 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p class="card-text">Price: ${product.price}</p>
                     <p class="card-text">Stock: ${product.stock}</p>
                     <p class="card-text">${product.description}</p>
-                    <p class="card-text"><strong>Listed By:</strong> ${ownerName}</p>
                     <p class="card-text"><strong>Listed At:</strong> ${listedAt}</p>
-                    ${product.owner.githubId === currentUser ? `
-                    <button class="btn btn-danger delete-button" data-product-id="${product.productId}" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"><i class="fa fa-trash"></i></button>
-                    <a href="add.html?id=${product.productId}" class="btn btn-primary"><i class="fa fa-edit"></i></a>
-                    ` : ''}
+                    <button class="btn btn-danger delete-button" data-product-id="${product._id}" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"><i class="fa fa-trash"></i></button>
+                    <a href="add.html?id=${product._id}" class="btn btn-primary"><i class="fa fa-edit"></i></a>
                 </div>
             `;
 
@@ -106,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error deleting product:', error);
                 showMessage('Error deleting product. Please try again later.', 'danger');
-            }finally {
+            } finally {
                 hideSpinner();
             }
         });

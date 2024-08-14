@@ -1,0 +1,47 @@
+<div class="container">
+    <h1>Contact Us</h1>
+
+    <p>In your assignment, you'll have to put some text here to describe for what reasons someone might want to fill out
+        this form.</p>
+    <hr>
+
+    <form id="contact-form">
+        <div class="mb-2">
+            <div class="mb-3">
+                <label for="name" class="form-label">Your Name</label>
+                <input type="text" class="form-control" id="name" name="name">
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Your Phone Number</label>
+                <input type="tel" class="form-control" id="phone" name="phone">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Your E-mail Address</label>
+                <input type="email" class="form-control" id="email" name="email">
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label">Message</label>
+                <textarea class="form-control" id="message" name="message" rows="3"></textarea>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </div>
+        </div>
+    </form>
+
+    <hr>
+</div>
+
+<div id="message-container" class="container">
+    <% if(messages.length) { %>
+        <% for (let message of messages) { %>
+            <div class="card my-2 p-2">
+                <p class="m-0">
+                    <strong><%= message.name %> says:</strong>&nbsp;<%= message.message %>
+                </p>
+            </div>
+        <% } %>
+    <% } else { %>
+        <div class="alert alert-warning">There are no messages for you.</div>
+    <% } %>
+</div>

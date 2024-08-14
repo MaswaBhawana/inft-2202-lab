@@ -1,10 +1,18 @@
 @import "bootstrap/scss/bootstrap.scss";
 
-body {
+$fa-font-path: '@fortawesome/fontawesome-free/webfonts';
+
+//@import "";
+
+body{
     background-color: black;
     color: white;
-
-    h2 {
+ 
+    h2{
         color: red;
     }
+}
+
+a{
+    cursor: pointer;
 }

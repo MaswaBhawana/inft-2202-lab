@@ -1,213 +1,192 @@
 import tmplList from './list-products.ejs';
-import productService from '../../services/product.service.js'; // Adjust the path as necessary
+import productService from '../../services/product.service.js';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 export default async () => {
     const container = document.getElementById('app');
-    container.innerHTML = '';  // Clear the previous content
-
-    // Render the EJS template into the container
-    const strList = tmplList();
-    container.insertAdjacentHTML("afterbegin", strList);
-
-    // Initialize DOM elements and variables
-    const messageBox = document.getElementById('messageAlert');
-    const productContainer = document.getElementById('products-container');
-    const paginationContainer = document.getElementById('pagination');
-    const perPageSelect = document.getElementById('perPageSelect');
-    const spinner = document.getElementById("spinner");
-
-    let perPage = parseInt(perPageSelect.value);
-    let currentPage = getCurrentPage();
-    let deleteProductId = null;
-
-    // Fetch and display products
-    async function fetchProducts() {
-        showSpinner();
-        try {
-            const productsData = await productService.listProducts(currentPage, perPage);
-            console.log('API Response:', productsData);
-
-            const products = productsData.records || productsData.data || productsData;
-            if (!products) {
-                throw new Error('Products data is not defined');
-            }
-
-            console.log('Fetched Products:', products);
-            drawProductCards(products);
-            drawPagination(productsData.pagination.count, productsData.pagination.page, productsData.pagination.perPage);
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            showMessage('Error fetching products. Please try again later.', 'danger');
-        } finally {
-            hideSpinner();
-        }
+    if (!container) {
+        console.error("Container element with id 'app' not found.");
+        return;
     }
 
-    // Event listener for changing the number of products per page
-    perPageSelect.addEventListener('change', async () => {
-        perPage = parseInt(perPageSelect.value);
-        currentPage = 1; // Reset to the first page when changing perPage
-        updateURL();
-        await fetchProducts();
-    });
+    // Render the static parts of the list page first
+    const initialHtml = `
+        <div class="container">
+            <h1 class="mt-5">List of Products</h1>
 
-    // Draw product cards based on the fetched products
-    function drawProductCards(products) {
-        if (products.length === 0) {
-            showMessage('No products found.', 'info');
-            productContainer.classList.add('d-none');
-            paginationContainer.innerHTML = '';
-            return;
-        } else {
-            messageBox.classList.add('d-none');
-            productContainer.classList.remove('d-none');
+            <!-- Dropdown for selecting number of products per page -->
+            <div class="mb-3">
+                <label for="perPageSelect" class="form-label">Products per page:</label>
+                <select id="perPageSelect" class="form-select" aria-label="Products per page">
+                    <option value="2">2</option>
+                    <option value="5" selected>5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+
+            <!-- Product Cards Section -->
+            <div id="products-container" class="cards row row-cols-1 row-cols-md-3 g-4"></div>
+
+            <!-- Spinner -->
+            <div class="text-center my-3 d-none" id="spinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Pagination Section -->
+            <nav id="pagination" aria-label="Page navigation">
+                <ul class="pagination justify-content-center"></ul>
+            </nav>
+
+            <!-- Modal window to confirm deletion -->
+            <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Delete</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this product?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    container.innerHTML = initialHtml;
+
+    try {
+        await fetchAndRenderProducts(); // Fetch products and render them
+    } catch (error) {
+        console.error('Error loading products:', error);
+        showMessage('Failed to load products. Please try again later.', 'danger');
+    }
+};
+
+// Function to fetch and render the products
+async function fetchAndRenderProducts() {
+    const spinner = document.getElementById('spinner');
+    const productsContainer = document.getElementById('products-container');
+
+    if (spinner) {
+        spinner.classList.remove('d-none'); // Show the spinner while loading products
+    }
+
+    try {
+        const { products, pagination } = await onInit(); // Fetch products and pagination data
+
+        if (productsContainer) {
+            const strProducts = tmplList({ products, renderDropdown: false });
+            productsContainer.innerHTML = strProducts;
         }
 
-        productContainer.innerHTML = '';
+        onRender(pagination); // Handle post-render tasks
+    } finally {
+        if (spinner) {
+            spinner.classList.add('d-none'); // Hide the spinner once products are loaded
+        }
+    }
+}
 
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.classList.add('card', 'col-md-4', 'col-sm-6', 'mb-4');
+// Initialization function to set up necessary data before rendering
+async function onInit() {
+    const currentPage = getCurrentPage();
 
-            const listedAt = new Date(product.createdAt).toLocaleString(); // Format the date
+    // Fetch products from the API
+    const { records: products, pagination } = await productService.listProducts(currentPage, 5);
 
-            card.innerHTML = `
-                <img src="https://cdn.australia247.info/assets/uploads/5627c3e0ca74272f061b5c71107cc361_-new-south-wales-newcastle-city-council-new-lambton-miskonduct-klothing-02-4048-0455html.jpg" class="card-img-top" alt="${product.name}">
-                <div class="card-body">
-                    <h5 class="card-title">${product.name}</h5>
-                    <p class="card-text">Price: ${product.price}</p>
-                    <p class="card-text">Stock: ${product.stock}</p>
-                    <p class="card-text">${product.description}</p>
-                    <p class="card-text"><strong>Listed At:</strong> ${listedAt}</p>
-                    <button class="btn btn-danger delete-button" data-product-id="${product._id}" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"><i class="fa fa-trash"></i></button>
-                    <a href="add.html?id=${product._id}" class="btn btn-primary"><i class="fa fa-edit"></i></a>
-                </div>
-            `;
+    return { products, pagination, currentPage };
+}
 
-            productContainer.appendChild(card);
+// Finalization function to handle post-rendering tasks
+function onRender(pagination) {
+    setupPagination(pagination); // Set up pagination based on the data received
+
+    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+    let deleteProductId = null;
+
+    document.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', event => {
+            event.preventDefault();
+            deleteProductId = event.currentTarget.getAttribute('data-product-id');
         });
+    });
 
-        // Initialize delete button event listeners
-        document.querySelectorAll('.delete-button').forEach(button => {
-            button.addEventListener('click', event => {
-                event.preventDefault();
-                deleteProductId = event.currentTarget.getAttribute('data-product-id');
-                console.log('Delete product ID:', deleteProductId);
-            });
-        });
-
-        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+    if (confirmDeleteButton) {
         confirmDeleteButton.addEventListener('click', async () => {
             if (!deleteProductId) {
                 console.error('No product ID set for deletion.');
                 return;
             }
-            showSpinner();
             try {
-                console.log(`Deleting product with ID: ${deleteProductId}`);
                 await productService.deleteProduct(deleteProductId);
                 showMessage('Product deleted successfully.', 'success');
+
+                // Close the modal
                 const deleteConfirmationModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
                 deleteConfirmationModal.hide();
-                await fetchProducts(); // Fetch and redraw products after deletion
+                if (deleteConfirmationModal) {
+                    deleteConfirmationModal.hide();
+                }
+
+                await fetchAndRenderProducts(); // Fetch and redraw products after deletion
             } catch (error) {
                 console.error('Error deleting product:', error);
                 showMessage('Error deleting product. Please try again later.', 'danger');
-            } finally {
-                hideSpinner();
             }
         });
     }
+}
 
-    // Draw pagination based on the total number of products
-    function drawPagination(totalItems, currentPage, perPage) {
-        const totalPages = Math.ceil(totalItems / perPage);
-        paginationContainer.innerHTML = '';
+// Helper function to set up pagination
+function setupPagination(pagination) {
+    const paginationContainer = document.querySelector('#pagination ul');
+    if (!paginationContainer) return;
 
-        if (totalPages <= 1) {
-            return;
+    paginationContainer.innerHTML = ''; // Clear existing pagination
+
+    for (let page = 1; page <= pagination.pages; page++) {
+        const li = document.createElement('li');
+        const classList = ['page-item'];
+        if (page === pagination.page) {
+            classList.push('active');
         }
-
-        const paginationList = document.createElement('ul');
-        paginationList.classList.add('pagination');
-
-        const prevButton = createPaginationButton('Previous', currentPage > 1 ? currentPage - 1 : currentPage, 'page-link', currentPage > 1);
-        paginationList.appendChild(prevButton);
-
-        for (let i = 1; i <= totalPages; i++) {
-            const pageButton = createPaginationButton(i, i, 'page-link', true, currentPage === i);
-            paginationList.appendChild(pageButton);
-        }
-
-        const nextButton = createPaginationButton('Next', currentPage < totalPages ? currentPage + 1 : currentPage, 'page-link', currentPage < totalPages);
-        paginationList.appendChild(nextButton);
-
-        paginationContainer.appendChild(paginationList);
-    }
-
-    // Helper function to create pagination buttons
-    function createPaginationButton(text, page, classes, isEnabled, isActive = false) {
-        const paginationItem = document.createElement('li');
-        paginationItem.classList.add('page-item');
-        if (isActive) {
-            paginationItem.classList.add('active');
-        }
-        if (!isEnabled) {
-            paginationItem.classList.add('disabled');
-        }
+        li.className = classList.join(' ');
 
         const link = document.createElement('a');
-        link.classList.add(classes);
-        link.textContent = text;
+        link.classList.add('page-link');
         link.href = `?page=${page}`;
-        link.addEventListener('click', (event) => {
+        link.textContent = page;
+
+        link.addEventListener('click', async (event) => {
             event.preventDefault();
-            if (isEnabled && !isActive) {
-                currentPage = page;
-                fetchProducts();
-                updateURL();
-            }
+            await fetchAndRenderProducts(page); // Fetch products for the selected page
         });
 
-        paginationItem.appendChild(link);
-        return paginationItem;
+        li.appendChild(link);
+        paginationContainer.appendChild(li);
     }
+}
 
-    // Get the current page from the URL
-    function getCurrentPage() {
-        const params = new URLSearchParams(window.location.search);
-        return parseInt(params.get('page')) || 1;
-    }
+// Helper function to get the current page from the URL
+function getCurrentPage() {
+    const params = new URLSearchParams(window.location.search);
+    return parseInt(params.get('page')) || 1;
+}
 
-    // Update the URL with the current page and perPage values
-    function updateURL() {
-        const url = new URL(window.location);
-        url.searchParams.set('page', currentPage);
-        url.searchParams.set('perPage', perPage);
-        window.history.pushState({}, '', url);
-    }
-
-    // Show a message in the alert box
-    function showMessage(message, type) {
+// Function to display a message to the user
+function showMessage(message, type) {
+    const messageBox = document.getElementById('messageAlert');
+    if (messageBox) {
         messageBox.textContent = message;
         messageBox.className = `alert alert-${type}`;
         messageBox.classList.remove('d-none');
     }
-
-    // Show the loading spinner
-    function showSpinner() {
-        console.log("Showing spinner");
-        spinner.classList.remove("d-none");
-        spinner.classList.add("show");
-    }
-
-    // Hide the loading spinner
-    function hideSpinner() {
-        console.log("Hiding spinner");
-        spinner.classList.add("d-none");
-        spinner.classList.remove("show");
-    }
-
-    // Fetch the products when the page is loaded
-    fetchProducts();
-};
+}

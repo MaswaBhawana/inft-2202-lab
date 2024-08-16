@@ -12,8 +12,6 @@ import ContactComponent from './app/pages/contact/contact.js';
 import CreateProductComponent from './app/pages/create-product/create-product.js';
 import ListProductsComponent from './app/pages/list-products/list-products.js';
 
-console.log("loaded javascript");
-
 
 export const router = new Navigo('/');
 

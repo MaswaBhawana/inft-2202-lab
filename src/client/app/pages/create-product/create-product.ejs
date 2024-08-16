@@ -1,27 +1,28 @@
 <div class="container">
-  <h1 id="form-heading" class="mt-5">Add Product</h1>
-
-  <form id="add-form">
-      <div class="mb-3">
-          <label for="name" class="form-label">Name</label>
-          <input type="text" class="form-control" id="name" name="name" required>
-          <div id="name-error" class="text-danger"></div>
-      </div>
-      <div class="mb-3">
-          <label for="price" class="form-label">Price</label>
-          <input type="number" class="form-control" id="price" name="price" step="0.01" required>
-          <div id="price-error" class="text-danger"></div>
-      </div>
-      <div class="mb-3">
-          <label for="stock" class="form-label">Stock</label>
-          <input type="number" class="form-control" id="stock" name="stock" required>
-          <div id="stock-error" class="text-danger"></div>
-      </div>
-      <div class="mb-3">
-          <label for="description" class="form-label">Description</label>
-          <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-          <div id="description-error" class="text-danger"></div>
-      </div>
-      <button type="submit" id="submit" class="btn btn-primary">Add Product</button>
-  </form>
-</div>
+    <h1 id="form-heading" class="mt-5"><%= isEdit ? 'Edit Product' : 'Add Product' %></h1>
+  
+    <form id="add-form">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="<%= isEdit && product ? product.name : '' %>" required>
+            <div id="name-error" class="text-danger d-none"></div>
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" class="form-control" id="price" name="price" step="0.01" value="<%= isEdit && product ? product.price : '' %>" required>
+            <div id="price-error" class="text-danger d-none"></div>
+        </div>
+        <div class="mb-3">
+            <label for="stock" class="form-label">Stock</label>
+            <input type="number" class="form-control" id="stock" name="stock" value="<%= isEdit && product ? product.stock : '' %>" required>
+            <div id="stock-error" class="text-danger d-none"></div>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required><%= isEdit && product ? product.description : '' %></textarea>
+            <div id="description-error" class="text-danger d-none"></div>
+        </div>
+        <button type="submit" id="submit" class="btn btn-primary"><%= isEdit ? 'Update Product' : 'Add Product' %></button>
+    </form>
+  </div>
+  

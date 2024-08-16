@@ -4,5 +4,5 @@ export default async () => {
     const strFooter = tmplFooter();
 
     document.getElementById('app')
-        .insertAdjacentHTML("afterbegin", strFooter);
+        .insertAdjacentHTML("afterend", strFooter);
 }

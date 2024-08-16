@@ -1,9 +1,8 @@
 import tmplCreate from './create-product.ejs';
 import productService from '../../services/product.service.js';
-import { Product } from '../../models/Product.js';
 
 export default async () => {
-    const initialData = onInit();
+    const initialData = await onInit();
 
     const strCreate = tmplCreate({
         ...initialData
@@ -13,34 +12,46 @@ export default async () => {
     container.innerHTML = '';  // Clear the previous content
     container.insertAdjacentHTML("afterbegin", strCreate);
 
-    onRender();
+    onRender(initialData);
 }
 
 /* 
  *  Stuff to do right before the template gets rendered
  *  Prepare the data that the template might need to use
  */
-function onInit() {
-    // Prepare any initial data or setup needed before rendering
-    const initialData = {};  // Add any necessary initial data here
-    return initialData;
+async function onInit() {
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
+    let isEdit = false;
+    let productData = {};
+
+    if (productId) {
+        isEdit = true;
+        productData = await productService.findProduct(productId);
+    }
+
+    return { isEdit, product: productData };
 }
 
 /* 
  *  Stuff to do right after the template gets rendered
  */
-function onRender() {
-    document.addEventListener('DOMContentLoaded', function() {
-        let params = new URL(document.location).searchParams;
-        if (params.has('id') && params.get('id').trim() !== "") {
-            console.log("Parameter found");
-            const productId = params.get('id').trim();
-            // You can add code here to populate the form for editing if needed
-        } else {
-            // If there are no valid search parameters, attach event handler to form submit
-            document.getElementById('add-form').addEventListener('submit', submitProductForm);
-        }
-    });
+function onRender({ isEdit, product }) {
+    const form = document.getElementById('add-form');
+
+    if (isEdit && product) {
+        document.getElementById('form-heading').textContent = "Edit Product";
+        document.getElementById('submit').textContent = "Update Product";
+
+        form.name.value = product.name;
+        form.price.value = product.price;
+        form.stock.value = product.stock;
+        form.description.value = product.description;
+
+        form.addEventListener('submit', (event) => submitProductForm(event, product._id));
+    } else {
+        form.addEventListener('submit', submitProductForm);
+    }
 }
 
 /**
@@ -99,40 +110,32 @@ function validateProductForm(form) {
 /**
  * Handle form submission
  */
-async function submitProductForm(event) {
+async function submitProductForm(event, productId = null) {
     event.preventDefault();
 
-    // Validate form fields
     const productForm = event.target;
     const isValid = validateProductForm(productForm);
 
     if (isValid) {
-        // Log form values 
-        console.log(`name: ${productForm.name.value}`);
-        console.log(`price: ${productForm.price.value}`);
-        console.log(`stock: ${productForm.stock.value}`);
-        console.log(`description: ${productForm.description.value}`);
+        const name = productForm.name.value.trim();
+        const price = parseFloat(productForm.price.value.trim());
+        const stock = parseInt(productForm.stock.value.trim());
+        const description = productForm.description.value.trim();
 
-        // Create new Product object
-        const newProduct = new Product(
-            productForm.name.value.trim(),
-            parseFloat(productForm.price.value.trim()), 
-            parseInt(productForm.stock.value.trim()),  
-            productForm.description.value.trim()
-        );
+        const productData = { name, price, stock, description };
 
         try {
-            console.log('Adding product:', newProduct); // Log the product being added
-            // Store the product using ProductService
-            await productService.addProduct(newProduct);
-            console.log('Product added successfully'); // Log success
-            // Redirect to list.html if product is successfully stored
-            window.location.href = 'list.html';
+            if (productId) {
+                await productService.updateProduct(productId, productData);
+            } else {
+                await productService.addProduct(productData);
+            }
+            window.location.href = '/list';
         } catch (error) {
-            console.error('Failed to store the product. Product may already exist.', error);
-            alert('Failed to store the product. Product may already exist.'); // Display the error to the user
+            console.error('Failed to save the product. Error:', error.message);
+            alert('Failed to save the product. Please try again.');
         }
     } else {
-        console.log('Form validation failed'); // Log form validation failure
+        console.log('Form validation failed');
     }
 }

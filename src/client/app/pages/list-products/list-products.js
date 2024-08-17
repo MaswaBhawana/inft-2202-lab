@@ -1,6 +1,6 @@
 import tmplList from './list-products.ejs';
 import productService from '../../services/product.service.js';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.js'; // Importing only the Modal class
 
 export default async () => {
     const container = document.getElementById('app');
@@ -68,10 +68,16 @@ export default async () => {
         console.error('Error loading products:', error);
         showMessage('Failed to load products. Please try again later.', 'danger');
     }
+
+    // Set up the event listener for the per-page dropdown
+    document.getElementById('perPageSelect').addEventListener('change', async (event) => {
+        const perPage = parseInt(event.target.value);
+        await fetchAndRenderProducts(1, perPage); // Fetch products starting from the first page
+    });
 };
 
 // Function to fetch and render the products
-async function fetchAndRenderProducts() {
+async function fetchAndRenderProducts(page = 1, perPage = 5) {
     const spinner = document.getElementById('spinner');
     const productsContainer = document.getElementById('products-container');
 
@@ -80,7 +86,7 @@ async function fetchAndRenderProducts() {
     }
 
     try {
-        const { products, pagination } = await onInit(); // Fetch products and pagination data
+        const { products, pagination } = await onInit(page, perPage); // Fetch products and pagination data
 
         if (productsContainer) {
             const strProducts = tmplList({ products, renderDropdown: false });
@@ -96,13 +102,11 @@ async function fetchAndRenderProducts() {
 }
 
 // Initialization function to set up necessary data before rendering
-async function onInit() {
-    const currentPage = getCurrentPage();
-
+async function onInit(page, perPage) {
     // Fetch products from the API
-    const { records: products, pagination } = await productService.listProducts(currentPage, 5);
+    const { records: products, pagination } = await productService.listProducts(page, perPage);
 
-    return { products, pagination, currentPage };
+    return { products, pagination };
 }
 
 // Finalization function to handle post-rendering tasks
@@ -112,13 +116,19 @@ function onRender(pagination) {
     const confirmDeleteButton = document.getElementById('confirmDeleteButton');
     let deleteProductId = null;
 
+    // Setup click event for all delete buttons
     document.querySelectorAll('.delete-button').forEach(button => {
         button.addEventListener('click', event => {
             event.preventDefault();
             deleteProductId = event.currentTarget.getAttribute('data-product-id');
+
+            // Show the modal
+            const deleteConfirmationModal = new Modal(document.getElementById('deleteConfirmationModal'));
+            deleteConfirmationModal.show();
         });
     });
 
+    // Handle deletion after confirmation
     if (confirmDeleteButton) {
         confirmDeleteButton.addEventListener('click', async () => {
             if (!deleteProductId) {
@@ -130,8 +140,7 @@ function onRender(pagination) {
                 showMessage('Product deleted successfully.', 'success');
 
                 // Close the modal
-                const deleteConfirmationModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
-                deleteConfirmationModal.hide();
+                const deleteConfirmationModal = Modal.getInstance(document.getElementById('deleteConfirmationModal'));
                 if (deleteConfirmationModal) {
                     deleteConfirmationModal.hide();
                 }
@@ -167,7 +176,8 @@ function setupPagination(pagination) {
 
         link.addEventListener('click', async (event) => {
             event.preventDefault();
-            await fetchAndRenderProducts(page); // Fetch products for the selected page
+            const perPage = parseInt(document.getElementById('perPageSelect').value);
+            await fetchAndRenderProducts(page, perPage); // Fetch products for the selected page
         });
 
         li.appendChild(link);

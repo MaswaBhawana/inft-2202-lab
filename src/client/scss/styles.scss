@@ -1,6 +1,10 @@
 @import "bootstrap/scss/bootstrap.scss";
 
 $fa-font-path: '@fortawesome/fontawesome-free/webfonts';
+$fa-font-path: '@fortawesome/fontawesome-free/webfonts';
+@import '@fortawesome/fontawesome-free/scss/fontawesome';
+@import '@fortawesome/fontawesome-free/scss/solid';
+@import '@fortawesome/fontawesome-free/scss/brands';
 
 //@import "";
 
@@ -18,5 +22,15 @@ a{
 }
 
 .modal-body {
-    color: #000; /* Ensure the text is black (or any visible color) */
+    color: #000; 
+}
+
+.delete-button i {
+    color: #fff; 
+    font-size: 1.25rem; 
+}
+
+.btn-primary i {
+    color: #fff; 
+    font-size: 1.25rem; 
 }
